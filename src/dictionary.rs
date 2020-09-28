@@ -14,9 +14,11 @@ use std::{
 
 use crate::Value;
 
+use std::collections::hash_map::RandomState;
+
 /// Represents a plist dictionary type.
 pub struct Dictionary {
-    map: IndexMap<String, Value>,
+    map: IndexMap<String, Value, RandomState>,
 }
 
 impl Dictionary {
@@ -24,7 +26,7 @@ impl Dictionary {
     #[inline]
     pub fn new() -> Self {
         Dictionary {
-            map: IndexMap::new(),
+            map: IndexMap::with_capacity_and_hasher(0, <_>::default()),
         }
     }
 

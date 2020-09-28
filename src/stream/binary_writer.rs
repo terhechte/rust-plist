@@ -15,11 +15,13 @@ use crate::{
     Date, Integer, Uid,
 };
 
+use std::collections::hash_map::RandomState;
+
 pub struct BinaryWriter<W: Write> {
     writer: PosWriter<W>,
     events: Vec<Event>,
     dictionary_key_events: Vec<usize>,
-    values: IndexMap<Value<'static>, ValueState>,
+    values: IndexMap<Value<'static>, ValueState, RandomState>,
     /// Pointers into `events` for each of the currently unclosed `Collection` events.
     collection_stack: Vec<usize>,
     /// The number of `Collection` and unique `Value` events in `events`.
@@ -117,7 +119,7 @@ impl<W: Write> BinaryWriter<W> {
             writer: PosWriter { writer, pos: 0 },
             events: Vec::new(),
             dictionary_key_events: Vec::new(),
-            values: IndexMap::new(),
+            values: IndexMap::with_capacity_and_hasher(0, <_>::default()),
             collection_stack: Vec::new(),
             num_objects: 0,
         }
@@ -575,7 +577,7 @@ fn is_even(value: usize) -> bool {
 }
 
 fn value_mut<'a>(
-    values: &'a mut IndexMap<Value<'static>, ValueState>,
+    values: &'a mut IndexMap<Value<'static>, ValueState, RandomState>,
     value_index: usize,
 ) -> (&'a mut Value<'static>, &'a mut ValueState) {
     values
